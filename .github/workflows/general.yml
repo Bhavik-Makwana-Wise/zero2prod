@@ -53,7 +53,7 @@ jobs:
   coverage:
     name: Code coverage
     runs-on: ubuntu-latest
-    ssteps:
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
