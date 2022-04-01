@@ -145,31 +145,31 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: -- -D warnings
 
-  coverage:
-    name: Code coverage
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:12
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: postgres
-        ports:
-          - 5432:5432
-      env:
-        SQLX_VERSION: 0.5.5
-        SQLX_FEATURES: postgres
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-
+#  coverage:
+#    name: Code coverage
+#    runs-on: ubuntu-latest
+#    services:
+#      postgres:
+#        image: postgres:12
+#        env:
+#          POSTGRES_USER: postgres
+#          POSTGRES_PASSWORD: password
+#          POSTGRES_DB: postgres
+#        ports:
+#          - 5432:5432
+#      env:
+#        SQLX_VERSION: 0.5.5
+#        SQLX_FEATURES: postgres
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v2
+#
+#      - name: Install stable toolchain
+#        uses: actions-rs/toolchain@v1
+#        with:
+#          toolchain: stable
+#          override: true
+#
 #      - name: Cache sqlx-cli
 #        uses: actions/cache@v2
 #        id: cache-sqlx
@@ -195,8 +195,8 @@ jobs:
 #          run: |
 #            sudo apt-get install libpq-dev -y
 #            SKIP_DOCKER=true ./scripts/init_db.sh
-
-      - name: Run cargo-tarpaulin
-        uses: actions-rs/tarpaulin@v0.1
-        with:
-          args: '--ignore-tests'
+#
+#      - name: Run cargo-tarpaulin
+#        uses: actions-rs/tarpaulin@v0.1
+#        with:
+#          args: '--ignore-tests'
