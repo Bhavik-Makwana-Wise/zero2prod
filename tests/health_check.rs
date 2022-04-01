@@ -1,4 +1,4 @@
-use sqlx::{Connection, PgConnection};
+use sqlx::{Connection, PgConnection, PgPool};
 use std::net::TcpListener;
 use zero2prod::configuration::get_configuration;
 
@@ -81,11 +81,11 @@ async fn subscribe_returns_a_400_for_valid_form_data() {
 async fn spawn_app() -> String {
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind to a random port");
     let configuration = get_configuration().expect("Failed to read configuration");
-    let connection = PgConnection::connect(&configuration.database.connection_string())
+    let db_pool = PgPool::connect(&configuration.database.connection_string())
         .await.expect("");
     // retrieve OS assigned port
     let port = listener.local_addr().unwrap().port();
-    let server = zero2prod::startup::run(listener, connection).expect("Failed to bind address");
+    let server = zero2prod::startup::run(listener, db_pool).expect("Failed to bind address");
     // launch server as background task
     let _ = tokio::spawn(server);
     format!("http://127.0.0.1:{}", port)
