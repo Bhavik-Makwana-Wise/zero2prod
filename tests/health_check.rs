@@ -42,7 +42,7 @@ async fn subscribe_returns_a_400_for_valid_form_data() {
     let test_cases = vec![
         ("name=le%20guin", "missing the email"),
         ("email=Oscar_Isaac%40@gmail.com", "missing the name"),
-        ("", "missing name and email")
+        ("", "missing name and email"),
     ];
 
     for (invalid_body, error_message) in test_cases {
@@ -54,10 +54,11 @@ async fn subscribe_returns_a_400_for_valid_form_data() {
             .await
             .expect("Failed to execute request");
 
-        assert_eq!(400,
-                   response.status().as_u16(),
-                   "The API did not fail with 400 bad request when payload was {}.",
-                   error_message
+        assert_eq!(
+            400,
+            response.status().as_u16(),
+            "The API did not fail with 400 bad request when payload was {}.",
+            error_message
         );
     }
 }
