@@ -175,23 +175,23 @@ jobs:
           path: |
             ~/.cargo/bin/sqlx
           key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
-#      - name: Install sqlx-cli
-#        uses: actions-rs/cargo@v1
-#        if: steps.cache-sqlx.outputs.cache-hit == false
-#        with:
-#          command: install
-#          args: >
-#            sqlx-cli
-#            --force
-#            --version=${{ env.SQLX_VERSION }}
-#            --features=${{ env.SQLX_FEATURES }}
-#            --no-default-features
-#            --locked
-#
-#        - name: Migrate database
-#          run: |
-#            sudo apt-get install libpq-dev -y
-#            SKIP_DOCKER=true ./scripts/init_db.sh
+      - name: Install sqlx-cli
+        uses: actions-rs/cargo@v1
+        if: steps.cache-sqlx.outputs.cache-hit == false
+        with:
+          command: install
+          args: >
+            sqlx-cli
+            --force
+            --version=${{ env.SQLX_VERSION }}
+            --features=${{ env.SQLX_FEATURES }}
+            --no-default-features
+            --locked
+
+      - name: Migrate database
+        run: |
+          sudo apt-get install libpq-dev -y
+          SKIP_DOCKER=true ./scripts/init_db.sh
 
       - name: Run cargo-tarpaulin
         uses: actions-rs/tarpaulin@v0.1
