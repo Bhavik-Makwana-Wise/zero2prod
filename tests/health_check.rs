@@ -62,7 +62,7 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
 }
 
 #[tokio::test]
-async fn subscribe_returns_a_400_for_valid_form_data() {
+async fn subscribe_returns_a_400_for_missing_form_data() {
     let app = spawn_app().await;
     let client = reqwest::Client::new();
     let test_cases = vec![
@@ -90,7 +90,7 @@ async fn subscribe_returns_a_400_for_valid_form_data() {
 }
 
 #[tokio::test]
-async fn subscribe_returns_a_200_when_fields_are_present_but_empty() {
+async fn subscribe_returns_a_400_when_fields_are_present_but_empty() {
     let app = spawn_app().await;
     let client = reqwest::Client::new();
     let test_cases = vec![
@@ -101,7 +101,7 @@ async fn subscribe_returns_a_200_when_fields_are_present_but_empty() {
 
     for (body, description) in test_cases {
         let response = client
-            .post(&format!("{}/subscriptions)", &app.address))
+            .post(&format!("{}/subscriptions", &app.address))
             .header("Content-Type", "application/x-www-form-urlencoded")
             .body(body)
             .send()
@@ -110,11 +110,12 @@ async fn subscribe_returns_a_200_when_fields_are_present_but_empty() {
         assert_eq!(
             400,
             response.status().as_u16(),
-            "The API did not return a 200 OK when the payload was {}.",
+            "The API did not return a 400 Bad Request when the payload was {}.",
             description
         );
     }
 }
+
 pub struct TestApp {
     pub address: String,
     pub db_pool: PgPool,
