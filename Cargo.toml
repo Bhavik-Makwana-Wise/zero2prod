@@ -13,7 +13,7 @@ name = "zero2prod"
 
 [dependencies]
 actix-web = "4"
-tokio = { version = "1", features = ["macros", "rt-multi-thread"]}
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "rt"]}
 serde = { version = "1", features = ["derive"]}
 config = "0.11"
 uuid = { version = "0.8.2", features = ["serde", "v4"] }
@@ -48,3 +48,4 @@ claim = "0.5"
 quickcheck = "0.9.2"
 quickcheck_macros = "0.9.1"
 fake = "~2.3"
+wiremock = "0.5.12"
