@@ -1,2 +1,3 @@
 /target
 .idea/
+scripts/migrate_db_prod.sh
