@@ -1,11 +1,11 @@
 use self::chrono::Utc;
+use crate::domain::{NewSubscriber, SubscriberEmail, SubscriberName};
 use actix_web::web::Data;
 use actix_web::{web, HttpResponse};
 use sqlx::types::chrono;
 use sqlx::PgPool;
 use tracing::Instrument;
 use uuid::Uuid;
-use crate::domain::{NewSubscriber, SubscriberEmail, SubscriberName};
 
 #[derive(serde::Deserialize)]
 pub struct FormData {
@@ -47,7 +47,10 @@ pub async fn subscribe(form: web::Form<FormData>, pool: web::Data<PgPool>) -> Ht
     name = "Saving a new subscribers details in the database"
     skip(new_subscriber, pool)
 )]
-pub async fn insert_subscriber(pool: &PgPool, new_subscriber: &NewSubscriber) -> Result<(), sqlx::Error> {
+pub async fn insert_subscriber(
+    pool: &PgPool,
+    new_subscriber: &NewSubscriber,
+) -> Result<(), sqlx::Error> {
     sqlx::query!(
         r#"
         INSERT INTO subscriptions (id, email, name, subscribed_at)

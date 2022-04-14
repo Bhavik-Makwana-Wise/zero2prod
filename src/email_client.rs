@@ -1,4 +1,3 @@
-
 use crate::domain;
 use domain::SubscriberEmail;
 use reqwest::{Client, ClientBuilder, Url};
@@ -13,26 +12,26 @@ pub struct EmailClient {
 }
 
 impl EmailClient {
-
-    pub fn new(base_url: Url,
-               sender: SubscriberEmail,
-               authorization_token: Secret<String>,
-               timeout: std::time::Duration
+    pub fn new(
+        base_url: Url,
+        sender: SubscriberEmail,
+        authorization_token: Secret<String>,
+        timeout: std::time::Duration,
     ) -> Self {
         Self {
             sender,
-            http_client: Client::builder().timeout(timeout)
-                .build()
-                .unwrap(),
+            http_client: Client::builder().timeout(timeout).build().unwrap(),
             base_url,
-            authorization_token
+            authorization_token,
         }
     }
-    pub async fn send_email(&self,
-                            recipient: SubscriberEmail,
-                            subject: &str,
-                            html_content: &str,
-                            text_content: &str) -> Result<(), reqwest::Error> {
+    pub async fn send_email(
+        &self,
+        recipient: SubscriberEmail,
+        subject: &str,
+        html_content: &str,
+        text_content: &str,
+    ) -> Result<(), reqwest::Error> {
         let url = self.base_url.join("/email").expect("Failed to parse url");
         let request_body = SendEmailRequest {
             from: self.sender.as_ref(),
@@ -42,11 +41,12 @@ impl EmailClient {
             text_body: text_content,
         };
 
-        let builder = self.http_client
+        let builder = self
+            .http_client
             .post(url)
             .header(
                 "X-Postmark-Server-Token",
-                self.authorization_token.expose_secret()
+                self.authorization_token.expose_secret(),
             )
             .json(&request_body)
             .send()
@@ -68,24 +68,23 @@ struct SendEmailRequest<'a> {
 
 #[cfg(test)]
 mod tests {
-    use claim::{assert_err, assert_ok};
     use crate::domain::SubscriberEmail;
     use crate::email_client::EmailClient;
+    use claim::{assert_err, assert_ok};
     use fake::faker::internet::en::SafeEmail;
     use fake::faker::lorem::en::{Paragraph, Sentence};
     use fake::{Fake, Faker};
     use reqwest::Url;
-    use wiremock::matchers::{any, header, header_exists, method, path};
-    use wiremock::{Mock, MockServer, ResponseTemplate};
     use secrecy::Secret;
+    use wiremock::matchers::{any, header, header_exists, method, path};
     use wiremock::Request;
-    
+    use wiremock::{Mock, MockServer, ResponseTemplate};
+
     struct SendEmailBodyMatcher;
-    
+
     impl wiremock::Match for SendEmailBodyMatcher {
         fn matches(&self, request: &Request) -> bool {
-            let result: Result<serde_json::Value, _> =
-                serde_json::from_slice(&request.body);
+            let result: Result<serde_json::Value, _> = serde_json::from_slice(&request.body);
             if let Ok(body) = result {
                 dbg!(&body);
                 body.get("From").is_some()
@@ -112,10 +111,12 @@ mod tests {
     }
 
     fn email_client(base_url: Url) -> EmailClient {
-        EmailClient::new(base_url,
-                         email(),
-                         Secret::new(Faker.fake()),
-                         std::time::Duration::from_millis(200))
+        EmailClient::new(
+            base_url,
+            email(),
+            Secret::new(Faker.fake()),
+            std::time::Duration::from_millis(200),
+        )
     }
 
     #[tokio::test]
@@ -182,7 +183,6 @@ mod tests {
         assert_err!(outcome);
     }
 
-
     #[tokio::test]
     async fn send_email_times_out_if_the_server_takes_too_long() {
         let mock_server = MockServer::start().await;
@@ -190,8 +190,7 @@ mod tests {
         let base_url = Url::parse(&mock_server.uri()).expect("failed to parse base url");
         let email_client = email_client(base_url);
 
-        let response = ResponseTemplate::new(200)
-            .set_delay(std::time::Duration::from_secs(180));
+        let response = ResponseTemplate::new(200).set_delay(std::time::Duration::from_secs(180));
         Mock::given(any())
             .respond_with(response)
             .expect(1)

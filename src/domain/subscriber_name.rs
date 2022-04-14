@@ -5,7 +5,7 @@ pub struct SubscriberName(String);
 
 impl SubscriberName {
     pub fn parse(s: String) -> Result<SubscriberName, String> {
-        let is_empty_or_whitespace =  s.trim().is_empty();
+        let is_empty_or_whitespace = s.trim().is_empty();
         // A grapheme is defined by the Unicode standard as a "user-perceived" character
         // e.g. å is a single grapheme compose of two characters
         // graphemes returns an iterator of the graphemes in s
@@ -20,8 +20,6 @@ impl SubscriberName {
             Ok(Self(s))
         }
     }
-
-
 }
 
 impl AsRef<str> for SubscriberName {
