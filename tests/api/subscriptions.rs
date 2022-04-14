@@ -1,6 +1,6 @@
+use crate::helpers::spawn_app;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, ResponseTemplate};
-use crate::helpers::spawn_app;
 
 #[tokio::test]
 async fn subscribe_returns_a_200_for_valid_form_data() {
@@ -15,7 +15,6 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
     let response = app.post_subscriptions(body.into()).await;
 
     assert_eq!(200, response.status().as_u16());
-
 }
 
 #[tokio::test]
@@ -61,7 +60,6 @@ async fn subscribe_returns_a_400_for_missing_form_data() {
     }
 }
 
-
 #[tokio::test]
 async fn subscribe_returns_a_400_when_fields_are_present_but_empty() {
     let app = spawn_app().await;
@@ -82,7 +80,6 @@ async fn subscribe_returns_a_400_when_fields_are_present_but_empty() {
         );
     }
 }
-
 
 #[tokio::test]
 async fn subscribe_sends_a_confirmation_email_for_valid_data() {
