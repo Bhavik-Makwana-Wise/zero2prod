@@ -1,18 +1,13 @@
 use once_cell::sync::Lazy;
-use reqwest::Url;
-use secrecy::ExposeSecret;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
-use std::net::TcpListener;
 use uuid::Uuid;
-use zero2prod::configuration::{get_configuration, DatabaseSettings, Settings};
-use zero2prod::email_client::EmailClient;
+use zero2prod::configuration::{get_configuration, DatabaseSettings};
 use zero2prod::startup::{Application, get_connection_pool};
 use zero2prod::telemetry::{get_subscriber, init_subscriber};
 
 
 static TRACING: Lazy<()> = Lazy::new(|| {
-    let default_filter_level = "info".to_string();
-    if (std::env::var("TEST_LOG").is_ok()) {
+    if std::env::var("TEST_LOG").is_ok() {
         let subscriber = get_subscriber("test".into(), "debug".into(), std::io::stdout);
         init_subscriber(subscriber);
     } else {
@@ -28,6 +23,17 @@ pub struct TestApp {
     pub db_pool: PgPool,
 }
 
+impl TestApp {
+    pub async fn post_subscriptions(&self, body: String) -> reqwest::Response {
+        reqwest::Client::new()
+            .post(&format!("{}/subscriptions", self.address))
+            .header("Content-type", "application/x-www-form-urlencoded")
+            .body(body)
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+}
 pub async fn spawn_app() -> TestApp {
     Lazy::force(&TRACING);
     let configuration = {

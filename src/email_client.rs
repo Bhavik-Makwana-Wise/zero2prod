@@ -1,6 +1,6 @@
 use crate::domain;
 use domain::SubscriberEmail;
-use reqwest::{Client, ClientBuilder, Url};
+use reqwest::{Client, Url};
 use secrecy::{ExposeSecret, Secret};
 
 #[derive(Clone)]
@@ -41,7 +41,7 @@ impl EmailClient {
             text_body: text_content,
         };
 
-        let builder = self
+        let _builder = self
             .http_client
             .post(url)
             .header(
@@ -122,7 +122,6 @@ mod tests {
     #[tokio::test]
     async fn send_email_sends_the_expected_request() {
         let mock_server = MockServer::start().await;
-        let sender = email();
         let base_url = Url::parse(&mock_server.uri()).expect("failed to parse base url");
         let email_client = email_client(base_url);
 
@@ -146,7 +145,6 @@ mod tests {
     #[tokio::test]
     async fn send_email_succeeds_if_the_server_returns_200() {
         let mock_server = MockServer::start().await;
-        let sender = email();
         let base_url = Url::parse(&mock_server.uri()).expect("failed to parse base url");
         let email_client = email_client(base_url);
 
@@ -166,7 +164,6 @@ mod tests {
     #[tokio::test]
     async fn send_email_fails_if_the_server_returns_500() {
         let mock_server = MockServer::start().await;
-        let sender = email();
         let base_url = Url::parse(&mock_server.uri()).expect("failed to parse base url");
         let email_client = email_client(base_url);
 
@@ -186,7 +183,6 @@ mod tests {
     #[tokio::test]
     async fn send_email_times_out_if_the_server_takes_too_long() {
         let mock_server = MockServer::start().await;
-        let sender = email();
         let base_url = Url::parse(&mock_server.uri()).expect("failed to parse base url");
         let email_client = email_client(base_url);
 
