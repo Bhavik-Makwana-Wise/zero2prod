@@ -131,7 +131,8 @@ async fn spawn_app() -> TestApp {
     let db_pool = configure_database(&configuration.database).await;
     let sender_email = configuration.email_client.sender().expect("Invalid sender email address");
     let base_url = Url::parse(configuration.email_client.base_url.as_str()).expect("Invalid base url");
-    let email_client = EmailClient::new(base_url, sender_email, configuration.email_client.authorization_token);
+    let timeout = configuration.email_client.timeout();
+    let email_client = EmailClient::new(base_url, sender_email, configuration.email_client.authorization_token, timeout);
     // retrieve OS assigned port
     let port = listener.local_addr().unwrap().port();
     let address = format!("http://127.0.0.1:{}", port);
