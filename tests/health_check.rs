@@ -2,6 +2,7 @@ use once_cell::sync::Lazy;
 use secrecy::ExposeSecret;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use std::net::TcpListener;
+use reqwest::Url;
 use uuid::Uuid;
 use zero2prod::configuration::{get_configuration, DatabaseSettings, Settings};
 use zero2prod::email_client::EmailClient;
@@ -9,7 +10,6 @@ use zero2prod::telemetry::{get_subscriber, init_subscriber};
 
 static TRACING: Lazy<()> = Lazy::new(|| {
     let default_filter_level = "info".to_string();
-    let subscriber_name = "test".to_string();
     if (std::env::var("TEST_LOG").is_ok()) {
         let subscriber = get_subscriber("test".into(), "debug".into(), std::io::stdout);
         init_subscriber(subscriber);
@@ -130,7 +130,8 @@ async fn spawn_app() -> TestApp {
     configuration.database.database_name = Uuid::new_v4().to_string();
     let db_pool = configure_database(&configuration.database).await;
     let sender_email = configuration.email_client.sender().expect("Invalid sender email address");
-    let email_client = EmailClient::new(configuration.email_client.base_url, sender_email);
+    let base_url = Url::parse(configuration.email_client.base_url.as_str()).expect("Invalid base url");
+    let email_client = EmailClient::new(base_url, sender_email, configuration.email_client.authorization_token);
     // retrieve OS assigned port
     let port = listener.local_addr().unwrap().port();
     let address = format!("http://127.0.0.1:{}", port);

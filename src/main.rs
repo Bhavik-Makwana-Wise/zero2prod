@@ -3,6 +3,7 @@ use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
 use std::io::Stdout;
 use std::net::TcpListener;
+use reqwest::Url;
 use zero2prod::configuration::get_configuration;
 use zero2prod::email_client::EmailClient;
 use zero2prod::startup::run;
@@ -18,7 +19,8 @@ async fn main() -> std::io::Result<()> {
         .connect_timeout(std::time::Duration::from_secs(2))
         .connect_lazy_with(configuration.database.with_db());
     let sender_email = configuration.email_client.sender().expect("Invalid sender email address");
-    let email_client = EmailClient::new(configuration.email_client.base_url, sender_email);
+    let base_url = Url::parse(&configuration.email_client.base_url).expect("Invalid base url");
+    let email_client = EmailClient::new(base_url, sender_email, configuration.email_client.authorization_token);
     let address = format!(
         "{}:{}",
         configuration.application.host, configuration.application.port
