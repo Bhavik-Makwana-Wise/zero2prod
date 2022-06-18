@@ -68,6 +68,8 @@ struct SendEmailRequest<'a> {
 
 #[cfg(test)]
 mod tests {
+    use std::time::Duration;
+    use actix_web::middleware::ErrorHandlerResponse::Response;
     use crate::domain::SubscriberEmail;
     use crate::email_client::EmailClient;
     use claim::{assert_err, assert_ok};
@@ -117,6 +119,28 @@ mod tests {
             Secret::new(Faker.fake()),
             std::time::Duration::from_millis(200),
         )
+    }
+
+    #[tokio::test]
+    async fn send_email_fires_a_request_to_base_url() {
+        let mock_server = MockServer::start().await;
+        let sender = SubscriberEmail::parse(SafeEmail().fake()).unwrap();
+        let base_url = Url::parse(&mock_server.uri()).expect("failed to parse base url");
+        let email_client = email_client(base_url);
+
+        let subscriber_email = SubscriberEmail::parse(SafeEmail().fake()).unwrap();
+        let subject: String = Sentence(1..2).fake();
+        let content: String = Paragraph(1..10).fake();
+
+        Mock::given(any())
+            .respond_with(ResponseTemplate::new(200))
+            .expect(1)
+            .mount(&mock_server)
+            .await;
+
+        let _ = email_client
+            .send_email(subscriber_email, &subject, &content, &content)
+            .await;
     }
 
     #[tokio::test]
